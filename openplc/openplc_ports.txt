@@ -1,0 +1,7 @@
+
+PLC-zone0 ->   script “zone_0.st” op port 8082 http//localhost:8082
+PLC-zone1 ->   script “zone_1.st” op port 8083 
+PLC-zone2 ->   script “zone_2.st” op port 8084
+PLC-zone3 ->   script “zone_3.st” op port 8085
+PLC-zone4 ->   script “zone_4.st” op port 8086
+
