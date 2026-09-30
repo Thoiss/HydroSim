@@ -413,13 +413,13 @@ def get_nodedata(nodes):
         name = ep.getNodeNameID(node)
         node_data["index"] = node
         node_data["type"] = ep.getNodeType(node)
-        node_data["pressure"] = round(ep.getNodePressure(node), 3)
-        node_data["quality"] = round(ep.getNodeActualQuality(node), 3)
+        node_data["pressure"] = round(float(ep.getNodePressure(node)), 3)
+        node_data["quality"] = round(float(ep.getNodeActualQuality(node)), 3)
         node_data["elevation"] = ep.getNodeElevations(node)
         match ep.getNodeType(node):
             case "JUNCTION":
-                node_data["demand"] = round(ep.getNodeActualDemand(node), 3)
-                node_data["head"] = round(ep.getNodeHydraulicHead(node), 3)
+                node_data["demand"] = round(float(ep.getNodeActualDemand(node)), 3)
+                node_data["head"] = round(float(ep.getNodeHydraulicHead(node)), 3)
             case "TANK":
                 # h = V / (pi * r^2)
                 # V = pi * r^2 * h
@@ -449,13 +449,15 @@ def get_nodedata(nodes):
 def get_linkdata(links):
     zone_data = {}
     logger.info("Collecting link data for %d links", len(links))
+
+
     for link in links:
         link_data = dict()
         # variables of every node
         name = ep.getLinkNameID(link)
         link_data["index"] = link
         link_data["type"] = ep.getLinkType(link)
-        link_data["quality"] = float(ep.getLinkActualQuality(link))
+        link_data["quality"] = float(float(ep.getLinkActualQuality(link)))
         link_data["headloss"] = round(float(ep.getLinkHeadloss(link)), 3)
         link_data["flow"] = round(float(ep.getLinkFlows(link)), 3)
         # the same as speed = 0 or if the pipe/valve is open of closed
@@ -483,6 +485,17 @@ def get_linkdata(links):
         # print(name, json.dumps(link_data))
         zone_data[name] = link_data
     return zone_data
+
+def convert_numpy(obj):
+
+    if isinstance(obj, numpy.ndarray):
+        return obj.tolist()
+
+    if isinstance(obj, numpy.generic):
+        return obj.item()
+
+    raise TypeError(f"Cannot serialize object of type {type(obj)}")
+
 
 
 def main():
@@ -538,10 +551,14 @@ def main():
 
                 write_plc(client, nodes_data, links_data)
                 try:
-                    mqtt_client.publish(TOPIC, str(nodes_data))
-                    mqtt_client.publish(TOPIC, str(links_data))
+                    json__data = json.dumps(nodes_data, default=convert_numpy, indent=2)
+                    mqtt_client.publish(TOPIC, str(json__data))
+                    # logger.info("Convert links_data to json .....")
+                    json__data2 = json.dumps(links_data, indent=2)
+                    #logger.info("dump: (json__data=%s)", json__data2)
+                    mqtt_client.publish(TOPIC, str(json__data2))
                 except ValueError as e:
-                    logger.error("%s: '%s'", e, TOPIC)
+                    logger.info("%s: '%s'", e, TOPIC)
 
             time.sleep(5)
             if tstep <= 0:
