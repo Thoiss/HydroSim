@@ -31,7 +31,7 @@ services:
       context: ./webserver/.
       dockerfile: Dockerfile
     ports:
-      - "80:80"
+      - "8089:80"
     volumes:
       - ./webserver/log/apache2:/var/log/apache2
     networks:
@@ -64,7 +64,6 @@ services:
       - "8080"
     volumes:
       - ./scadalts/tomcat_log:/usr/local/tomcat/logs:rw
-      - ./scadalts/config:/config.zip
       - ./scadalts/config/uploads:/usr/local/tomcat/webapps/Scada-LTS/uploads:ro
       # - ./scadalts/config/uploads:/usr/local/tomcat/webapps/ScadaBR/graphics/uploads:ro
       # - ./scadalts/config/uploads:/usr/local/tomcat/webapps/ScadaBR/graphics/view_uploads:ro
@@ -84,6 +83,25 @@ services:
       - plc_network
       - database
 
+  website:
+    container_name: website
+    build:
+      context: .
+      dockerfile: website-deploy/Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      DB_HOST: database
+      DB_PORT: "3306"
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    networks:
+      - intranet
+      - database
+    restart: "always"
+    depends_on:
+      database:
+        condition: service_healthy
+
   database:
     container_name: database
     image: mysql/mysql-server:8.0.32
@@ -97,7 +115,7 @@ services:
       - "3307:3306"
     volumes:
       - ./scadalts/db_data:/var/lib/mysql:rw
-      - ./scadalts/db_conf:/etc/mysql:ro
+      - ./my.cnf:/etc/my.cnf:ro
     command: --log_bin_trust_function_creators=1
     networks:
       - database
@@ -250,7 +268,7 @@ services:
     environment:
       OPENSEARCH_HOSTS: '["https://opensearch-node1:9200"]'
       OPENSEARCH_USERNAME: admin
-      OPENSEARCH_PASSWORD: Paat123!
+      OPENSEARCH_PASSWORD: Patat123!
       OPENSEARCH_SSL_VERIFICATION_MODE: none
       OPENSEARCH_SECURITYMULTITENANCY_ENABLED: "false"
       DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
