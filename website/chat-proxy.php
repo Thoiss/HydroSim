@@ -28,7 +28,7 @@ if (
 
 
 // ── Configuratie (onzichtbaar voor gebruikers) ──────────
-$API_KEY = '';
+$API_KEY = getenv('ANTHROPIC_API_KEY') ?: '';
 $MODEL   = 'claude-sonnet-4-20250514';
 $SYSTEM  = 'Jij werkt voor een waterdistributie bedrijf, je werkt op de helpdesk.
 Je staat klanten te woord en beantwoordt hun vragen.
