@@ -25,29 +25,6 @@ services:
     #   LOCALHOST: ""
 
   # Central systems
-  webserver:
-    container_name: webserver
-    build:
-      context: ./webserver/.
-      dockerfile: Dockerfile
-    ports:
-      - "8089:80"
-    volumes:
-      - ./webserver/log/apache2:/var/log/apache2
-    networks:
-      - intranet
-      - database
-    restart: "always"
-    depends_on:
-      database:
-        condition: service_healthy
-        restart: true
-    environment:
-      - WORDPRESS_DB_HOST=database:3306
-      - WORDPRESS_DB_USER=root
-      - WORDPRESS_DB_PASSWORD=root
-      - WORDPRESS_DB_NAME=scadalts
-
   scadalts:
     container_name: scadalts
     image: scadalts/scadalts:v2.7.5.2
@@ -281,7 +258,6 @@ services:
       dockerfile: Dockerfile
     user: "0:0"
     volumes:
-      - ./webserver/log/apache2:/var/log/webserver
       - ./scadalts/tomcat_log:/var/log/scadalts
       - ./epanet/app:/var/log/epanet:ro
       - fluent-bit-buffer:/var/fluent-bit/buffer

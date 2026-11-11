@@ -6,7 +6,6 @@
 - [`scadalts.md`](scadalts.md) - SCADA Human Machine Interface with realistisc controls for the simulation
 - [`epanet.md`](epanet.md) - EPANET simulation with Modbus controls
 - [`opensearch.md`](opensearch.md) - OpenSearch Dashboard for logging and monitoring
-- [`webserver.md`](webserver.md) - The Apache webserver serving as the initial attack surface
 - [`mqtt.md`](mqtt.md) - The MQTT broker, used to send the HydroSim simulation state to physical hardware.
 
 ## Physical hardware

@@ -3,26 +3,17 @@
 The **OT SIM** environment consists of the following components:
 
 1. **Epanet container**  
-2. **Web server**  
-3. **ScadaLTS**  
-4. **Database for ScadaLTS**  
-5. **OpenPLC (multiple instances)**
+2. **ScadaLTS**  
+3. **Database for ScadaLTS**  
+4. **OpenPLC (multiple instances)**
 
 For each one of these components we have researched its attack surfaces and have archived different vulnerabilities that can be used to exploit.  
 
-## 2. Web Server
-
-The web server runs on a **`wordpress:5.8-php7.4-apache`** container. Within this container, an outdated and vulnerable version of Bash is installed: **`bash-3.1`**, which is susceptible to the **Shellshock vulnerability**. This allows an attacker to exploit remote command execution (RCE) through a vulnerable script that can be triggered remotely.
-
-Additionally, the server contains credentials for an employee account, which could be compromised and used for further attacks.
-
----
-
-## 3. ScadaLTS
+## 2. ScadaLTS
 
 The **ScadaLTS environment** is protected by a login screen, but it is susceptible to brute-force attacks.
 
-With the compromised employee credentials, an attacker can gain access to the **ScadaLTS environment**, which runs **`ScadaLTS v2.7.5.2`**. This version is vulnerable to **CVE-2023-33472** / **CVE-2022-41976**, a security flaw that allows:
+With compromised employee credentials, an attacker can gain access to the **ScadaLTS environment**, which runs **`ScadaLTS v2.7.5.2`**. This version is vulnerable to **CVE-2023-33472** / **CVE-2022-41976**, a security flaw that allows:
 - **Privilege escalation** from an unprivileged account.
 - **Arbitrary code execution**.
 - **Extraction of sensitive information** via the **Event Handlers** function.
@@ -42,7 +33,7 @@ Once an attacker gains administrative privileges, they can manipulate key values
 
 ---
 
-## 5. OpenPLC
+## 3. OpenPLC
 
 The **PLCs (Programmable Logic Controllers)** are accessible from the **HMI**, and the **Modbus port** is open. If the PLCs are not securely programmed, attackers can directly control pumps and other equipment, bypassing normal operational logic.
 

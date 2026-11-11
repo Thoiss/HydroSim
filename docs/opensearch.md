@@ -2,9 +2,9 @@
 OpenSearch is an open-source dashboard that we use to [automatically ingest](https://opensearch.org/docs/latest/observing-your-data/log-ingestion/) multiple log files to monitor Apache, Scada-LTS, and EPANET logs.
 
 ## Screenshots
-For example, the `webserver/log/apache2/access.log` log file is read and then visualized in our OpenSearch dashboard through a log ingestion workflow.
+For example, the ScadaLTS access log (`scadalts/tomcat_log/localhost_access_log*.txt`) is read and then visualized in our OpenSearch dashboard through a log ingestion workflow.
 
-- The access.log file from the Apache web server
+- An access log file from a web server
 
 ![](https://github.com/user-attachments/assets/4616222a-3eeb-4fc8-a8e8-b2597e3ab44a)
 
@@ -42,18 +42,17 @@ Before the log files can be explored in OpenSearch Dashboard they need a data vi
 ![](https://github.com/user-attachments/assets/21962c37-8774-4c5b-a84e-af197924fb68)
 
 ## Log ingestion workflow
-The log file paths are defined in the `docker-compose.yaml`. For example the `/var/log/apache2` folder in the webserver container is mapped to `./webserver/log/apache2` on the host machine, which then allows the fluent-bit container to ingest `./webserver/log/apache2/access.log` into the log pipeline.
+The log file paths are defined in the `docker-compose.yaml`. For example the `/usr/local/tomcat/logs` folder in the scadalts container is mapped to `./scadalts/tomcat_log` on the host machine, which then allows the fluent-bit container to ingest the ScadaLTS access logs into the log pipeline.
 ```yml
-  webserver:
-    container_name: webserver
+  scadalts:
+    container_name: scadalts
     volumes:
-      - ./webserver/log/apache2:/var/log/apache2
+      - ./scadalts/tomcat_log:/usr/local/tomcat/logs:rw
 ```
 ```yml
   fluent-bit:
     container_name: fluent-bit
     volumes:
-      - ./webserver/log/apache2:/var/log/webserver
       - ./scadalts/tomcat_log:/var/log/scadalts
       - ./epanet/app:/var/log/epanet:ro
 ```
@@ -61,17 +60,17 @@ The log file paths are defined in the `docker-compose.yaml`. For example the `/v
 ### Pipelines
 Data Prepper exposes separate HTTP ports for each pipeline:
 
-- `log-pipeline` on port `2021` with path `/log/ingest` (Apache + Scada-LTS)
+- `log-pipeline` on port `2021` with path `/log/ingest` (Scada-LTS access logs, index `apache_logs`)
 - `epanet-pipeline` on port `2022` with path `/log/epanet`
 
 The pipelines are defined in `opensearch/log_pipeline.yaml` and use `@timestamp` for time-based filtering in Dashboards. EPANET log timestamps are parsed from the application log format.
 
 ## Testing
-When visiting the (WordPress) web server on http://127.0.0.1:80 the `access.log` will be updated and should be automatically ingested to the OpenSearch dashboard.
+When visiting ScadaLTS on http://127.0.0.1:8081/Scada-LTS/ the access log will be updated and should be automatically ingested to the OpenSearch dashboard.
 
 This can also be manually tested by adding a line to the log file, which should show in the dashboard when refreshing it. This will require first elevating to root with `sudo su` or otherwise editing with `sudo nano`, since the log files are supposed to be read-only.
 ```
-echo '63.173.168.120 - - [04/Nov/2021:15:07:25 -0500] "GET /search/tag/list HTTP/1.0" 200 5003' >> ./webserver/log/apache2/access.log
+echo '63.173.168.120 - - [04/Nov/2021:15:07:25 -0500] "GET /search/tag/list HTTP/1.0" 200 5003' >> ./scadalts/tomcat_log/localhost_access_log.$(date +%F).txt
 ```
 
 The OpenSearch API also allows querying raw documents which can be used to troubleshoot the connection.
