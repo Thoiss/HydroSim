@@ -18,9 +18,7 @@ This project integrates EPANET, OpenPLC, and ScadaLTS to create a comprehensive 
     Provides the human-machine interface (HMI) for visualization and interaction with the simulated system.
 
 - #### Opensearch
-    Retrieves logs from the 2 webservers: 
-    1. Wordpress with RCE vulnerability
-    2. ScadaLTS with privilege escalation and RCE
+    Retrieves logs from ScadaLTS (privilege escalation and RCE) and EPANET.
 
 - #### MQTT-broker
     Allows EPANET to send the state of the simulation in JSON format to any receiving device.
@@ -65,7 +63,6 @@ If something goes wrong while trying to generate the certificates, check ["Setup
 - [OpenPLC](docs/openplc.md)
 - [OpenSearch](docs/opensearch.md)
 - [ScadaLTS](docs/scadalts.md)
-- [Webserver](docs/webserver.md)
 - [MQTT broker](docs/mqtt.md)
 
 ## Dev container (EPANET debugging)
