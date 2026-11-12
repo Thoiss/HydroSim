@@ -112,7 +112,12 @@ services:
     ports:
       - "8082:8080"
       - "5022:502"
-
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: openplc.zone0
+        fluentd-async: "true"
     expose:
       - "502"
       - "8080"
@@ -134,7 +139,12 @@ services:
     ports:
       - "8083:8080"
       - "5023:502"
-
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: openplc.zone1
+        fluentd-async: "true"
     expose:
       - "502"
       - "8080"
@@ -156,7 +166,12 @@ services:
     ports:
       - "8084:8080"
       - "5024:502"
-
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: openplc.zone2
+        fluentd-async: "true"
     expose:
       - "502"
       - "8080"
@@ -178,6 +193,12 @@ services:
     ports:
       - "8085:8080"
       - "5025:502"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: openplc.zone3
+        fluentd-async: "true"
     expose:
       - "502"
       - "8080"
@@ -199,7 +220,12 @@ services:
     ports:
       - "8086:8080"
       - "5026:502"
-
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: openplc.zone4
+        fluentd-async: "true"
     expose:
       - "502"
       - "8080"
@@ -262,6 +288,8 @@ services:
       - ./epanet/app:/var/log/epanet:ro
       - ./mqtt/log:/var/log/mqtt:ro
       - fluent-bit-buffer:/var/fluent-bit/buffer
+    ports:
+      - 24224:24224
     depends_on:
       - data-prepper
     networks:

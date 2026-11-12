@@ -84,3 +84,28 @@ mqtt-pipeline:
         username: admin
         password: Patat123!
         index: mqtt_logs
+
+openplc-pipeline:
+  source:
+    http:
+      ssl: false
+      port: 2024
+      path: /log/openplc
+  buffer:
+    bounded_blocking:
+      buffer_size: 50000
+      batch_size: 200
+  processor:
+    - grok:
+        match:
+          log: [ "%{GREEDYDATA:message}" ]
+    - date:
+        from_time_received: true
+        destination: "@timestamp"
+  sink:
+    - opensearch:
+        hosts: [ "https://opensearch-node1:9200" ]
+        insecure: true
+        username: admin
+        password: Patat123!
+        index: openplc_logs
