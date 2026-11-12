@@ -55,3 +55,32 @@ epanet-pipeline:
         username: admin
         password: Patat123!
         index: epanet_logs
+
+mqtt-pipeline:
+  source:
+    http:
+      ssl: false
+      port: 2023
+      path: /log/mqtt
+  buffer:
+    bounded_blocking:
+      buffer_size: 50000
+      batch_size: 200
+  processor:
+    - grok:
+        match:
+          log: [ "%{TIMESTAMP_ISO8601:timestamp}: %{GREEDYDATA:message}" ]
+    - date:
+        match:
+          - key: "timestamp"
+            patterns:
+              - "yyyy-MM-dd'T'HH:mm:ss"
+        destination: "@timestamp"
+        from_time_received: false
+  sink:
+    - opensearch:
+        hosts: [ "https://opensearch-node1:9200" ]
+        insecure: true
+        username: admin
+        password: Patat123!
+        index: mqtt_logs
