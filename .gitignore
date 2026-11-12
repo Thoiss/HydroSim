@@ -19,3 +19,6 @@ mqtt/certs
 website/*.swp
 website/adminer.php
 website/info.php
+
+/known_vulnerabilities/
+/Notes (verslag)/

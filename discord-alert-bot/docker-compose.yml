@@ -1,0 +1,34 @@
+# Gebruik (vanuit deze map, op de server):
+#   docker compose up -d --build     # bouwen + starten (achtergrond)
+#   docker compose logs -f           # logs volgen
+#   docker compose down              # stoppen + opruimen
+#
+# Vereist: de HydroSim-stack draait (dan bestaat het netwerk hydrosim_opensearch-net).
+
+services:
+  relay:
+    build: .
+    image: hydrosim-alertbot
+    container_name: discord-relay
+    entrypoint: ["node", "relay.mjs"]
+    env_file: .env
+    environment:
+      RELAY_HOST: "0.0.0.0"
+    networks:
+      - opensearch-net
+    restart: unless-stopped
+
+  heartbeat:
+    build: .
+    image: hydrosim-alertbot
+    container_name: discord-heartbeat
+    entrypoint: ["node", "heartbeat.mjs"]
+    env_file: .env
+    networks:
+      - opensearch-net
+    restart: unless-stopped
+
+networks:
+  opensearch-net:
+    external: true
+    name: hydrosim_opensearch-net
