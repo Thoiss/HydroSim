@@ -8,12 +8,14 @@ epanet/app/*_temp*
 
 .venv
 .env
+.env.bak*
 
 /node_modules
 
 *.log*
 
 mqtt/certs
+mqtt/bundle-*/
 
 
 website/*.swp
