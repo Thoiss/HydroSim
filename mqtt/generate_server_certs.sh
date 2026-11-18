@@ -16,6 +16,12 @@ if [ -z "$CN" ]; then
   exit 1
 fi
 
+# Subject Alternative Names: modern TLS clients ignore the CN and only check the SAN
+if [[ "$CN" =~ ^[0-9.]+$ ]]; then SAN="IP:${CN}"; else SAN="DNS:${CN}"; fi
+SAN="${SAN}, IP:127.0.0.1, DNS:localhost, DNS:mosquitto"
+read -p "Extra SANs (optional, e.g. IP:10.0.0.5,DNS:broker.local): " EXTRA_SAN
+[ -n "$EXTRA_SAN" ] && SAN="${SAN}, ${EXTRA_SAN}"
+
 # Paths (change if necessary)
 BASE_DIR="./certs"
 SERVER_DIR="$BASE_DIR/server"
@@ -60,7 +66,12 @@ openssl x509 -req -in "$CSR_FILE" \
   -CAkey "$CA_DIR/ca.key" \
   -CAcreateserial \
   -out "$CRT_FILE" \
-  -days 365
+  -days 365 -sha256 \
+  -extfile <(printf '%s\n' \
+    "basicConstraints = critical, CA:FALSE" \
+    "keyUsage = critical, digitalSignature, keyEncipherment" \
+    "extendedKeyUsage = serverAuth" \
+    "subjectAltName = $SAN")
 
 echo "-------------------------------------------"
 echo "Server certificate succesfully generated!"
