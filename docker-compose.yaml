@@ -318,10 +318,28 @@ services:
       - ./mqtt/certs:/mosquitto/certs
       - ./mqtt/log:/mosquitto/log
     user: "1883"
+  
+  #plc-sim
+  plc-sim:
+    image: python:3.11-slim
+    container_name: plc-sim
+    restart: unless-stopped
+    command: sh -c "pip install --no-cache-dir pymodbus==3.6.9 && python /sim/plc_zone_simulator.py"
+    volumes:
+      - ./plc-sim/plc_zone_simulator.py:/sim/plc_zone_simulator.py:ro
+    environment:
+      MAX_CONCURRENT: "3"
+      ON_MIN: "60"
+      ON_MAX: "240"
+      OFF_MIN: "180"
+      OFF_MAX: "600"
+    networks:
+      - plc_network
+
 volumes:
   opensearch-data1:
   fluent-bit-buffer:
-
+  
 networks:
   intranet:
   plc_network:

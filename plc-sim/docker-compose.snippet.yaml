@@ -1,0 +1,20 @@
+# Voeg deze service toe aan ~/HydroSim/docker-compose.yaml (onder services:).
+# Draait de baseline-simulator als losse container op plc_network, zodat hij
+# de PLC-zones op naam (plc-zone0..4:502) bereikt. Geen image-build nodig:
+# pymodbus wordt bij het starten in de container geïnstalleerd.
+
+  plc-sim:
+    image: python:3.11-slim
+    container_name: plc-sim
+    restart: unless-stopped
+    command: sh -c "pip install --no-cache-dir pymodbus==3.6.9 && python /sim/plc_zone_simulator.py"
+    volumes:
+      - ./plc-sim/plc_zone_simulator.py:/sim/plc_zone_simulator.py:ro
+    environment:
+      MAX_CONCURRENT: "3"     # max pompen tegelijk AAN (baseline)
+      ON_MIN: "60"
+      ON_MAX: "240"
+      OFF_MIN: "180"
+      OFF_MAX: "600"
+    networks:
+      - plc_network           # pas de netwerknaam aan als die in jouw compose anders heet
