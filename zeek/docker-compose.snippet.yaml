@@ -1,0 +1,23 @@
+# Voeg deze service toe aan ~/HydroSim/docker-compose.yaml onder services:
+#
+# BELANGRIJK: Zeek draait met network_mode: host zodat het de plc_network-BRIDGE
+# (br-<id>) kan sniffen. Een container ON plc_network ziet alleen broadcast + eigen
+# verkeer, NIET het unicast Modbus tussen EPANET/ScadaLTS en de PLC's.
+#
+# 1) Vind de bridge-naam:
+#      NETID=$(docker network inspect plc_network -f '{{.Id}}' | cut -c1-12)
+#      echo "br-$NETID"
+# 2) Vervang 'br-REPLACE' hieronder door die naam.
+
+  zeek:
+    image: zeek/zeek:latest
+    container_name: zeek
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: zeek -i br-REPLACE -C /usr/local/zeek/share/zeek/site/local.zeek
+    volumes:
+      - ./zeek/logs:/logs
+      - ./zeek/local.zeek:/usr/local/zeek/share/zeek/site/local.zeek:ro

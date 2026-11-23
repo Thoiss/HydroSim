@@ -288,6 +288,7 @@ services:
       - ./epanet/app:/var/log/epanet:ro
       - ./mqtt/log:/var/log/mqtt:ro
       - fluent-bit-buffer:/var/fluent-bit/buffer
+      - ./zeek/logs:/var/log/zeek:ro      
     ports:
       - 24224:24224
     depends_on:
@@ -335,6 +336,20 @@ services:
       OFF_MAX: "600"
     networks:
       - plc_network
+
+  #zeek Modbus sniffer
+  zeek:
+    image: zeek/zeek:latest
+    container_name: zeek
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    command: zeek -i br-2d1279af4c23 -C /usr/local/zeek/share/zeek/site/local.zeek
+    volumes:
+      - ./zeek/logs:/logs
+      - ./zeek/local.zeek:/usr/local/zeek/share/zeek/site/local.zeek:ro
 
 volumes:
   opensearch-data1:

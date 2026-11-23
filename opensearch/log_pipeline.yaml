@@ -109,3 +109,27 @@ openplc-pipeline:
         username: admin
         password: Patat123!
         index: openplc_logs
+
+network-pipeline:
+  source:
+    http:
+      ssl: false
+      port: 2026
+      path: /log/network
+  buffer:
+    bounded_blocking:
+      buffer_size: 50000
+      batch_size: 200
+  processor:
+    - parse_json:
+        source: "log"
+    - date:
+        from_time_received: true
+        destination: "@timestamp"
+  sink:
+    - opensearch:
+        hosts: [ "https://opensearch-node1:9200" ]
+        insecure: true
+        username: admin
+        password: Patat123!
+        index: network_logs
